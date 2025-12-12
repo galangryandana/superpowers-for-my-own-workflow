@@ -1,7 +1,7 @@
 ---
 name: devops-specialist
 description: Infrastructure automation expert specializing in CI/CD pipelines, containerization, cloud infrastructure, and monitoring. Handles GitHub Actions, Docker, Kubernetes, Terraform, and observability. Use PROACTIVELY for infrastructure setup, automation, or DevOps workflows.
-model: inherit
+
 tools: ["Read", "LS", "Grep", "Glob", "Create", "Edit", "MultiEdit", "Execute", "WebSearch", "FetchUrl", "TodoWrite", "Task", "GenerateDroid", "docker___docker_container_list", "docker___docker_container_inspect", "docker___docker_container_start", "docker___docker_container_stop", "docker___docker_container_restart", "docker___docker_container_logs", "docker___docker_system_info", "docker___docker_system_version", "github___create_branch", "github___push_files", "github___create_pull_request", "github___get_pull_request_status"]
 ---
 

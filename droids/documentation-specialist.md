@@ -1,7 +1,7 @@
 ---
 name: documentation-specialist
 description: Technical documentation expert specializing in API docs, user guides, knowledge management, and documentation automation. Handles README files, API documentation, architecture docs, and knowledge bases. Use PROACTIVELY for new features, API changes, or documentation reviews.
-model: inherit
+
 tools: ["Read", "LS", "Grep", "Glob", "Create", "Edit", "MultiEdit", "Execute", "WebSearch", "FetchUrl", "TodoWrite", "Task", "GenerateDroid", "github___get_file_contents", "github___search_repositories", "github___search_code", "github___create_or_update_file", "github___push_files"]
 ---
 
