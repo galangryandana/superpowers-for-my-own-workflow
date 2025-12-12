@@ -4,15 +4,13 @@ Framework disiplin pengembangan untuk AI coding assistant, dioptimasi untuk [Dro
 
 ## Mengapa Repo Ini?
 
-Repo ini adalah **fork termodifikasi** dari [obra/superpowers](https://github.com/obra/superpowers) yang awalnya didesain 100% untuk Claude Code.
+Repo ini adalah **clone termodifikasi** dari [obra/superpowers](https://github.com/obra/superpowers) yang awalnya didesain 100% untuk Claude Code.
 
 **Perbedaan dengan superpowers original:**
 - Skills telah diupdate agar **full kompatibel dengan Droid CLI**
 - Droids disesuaikan dengan arsitektur Droid
 - Commands dioptimasi untuk workflow Droid
-- Beberapa syntax dan path telah disesuaikan
-
-**Jangan gunakan superpowers original untuk Droid** - akan ada inkompabilitas karena perbedaan arsitektur antara Claude Code dan Droid CLI.
+- Beberapa syntax dan path telah disesuaikan supaya kompatibel dengan Droid CLI
 
 ## Instalasi
 
@@ -53,8 +51,6 @@ chmod +x install.sh && ./install.sh
 
 **Catatan:** 
 - File AGENTS.md akan di-append, bukan di-replace
-- File custom Anda di folder skills/droids/commands tetap aman
-- Hanya file dengan nama sama yang akan di-update
 
 ## Credits
 

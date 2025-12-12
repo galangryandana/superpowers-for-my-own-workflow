@@ -17,3 +17,4 @@ Before generating ANY response, ask yourself:
 
 If NO → Load it FIRST, output nothing else before it
 If YES → Proceed with response
+

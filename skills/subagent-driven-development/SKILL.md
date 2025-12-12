@@ -7,6 +7,30 @@ description: Use when executing implementation plans with independent tasks in t
 
 Execute plan by dispatching fresh subagent per task, with code review after each.
 
+**Core principle:** Fresh subagent per task + review between tasks = high quality, fast iteration
+
+---
+
+## Overview
+
+**vs. Executing Plans (parallel session):**
+- Same session (no context switch)
+- Fresh subagent per task (no context pollution)
+- Code review after each task (catch issues early)
+- Faster iteration (no human-in-loop between tasks)
+
+**When to use:**
+- Staying in this session
+- Tasks are mostly independent
+- Want continuous progress with quality gates
+
+**When NOT to use:**
+- Need to review plan first (use `executing-plans`)
+- Tasks are tightly coupled (manual execution better)
+- Plan needs revision (brainstorm first)
+
+---
+
 ## BEFORE YOU START
 
 **Say this exactly:** "I will route each task to the correct specialist droid and call code-reviewer after each task."
@@ -58,7 +82,7 @@ Execute plan by dispatching fresh subagent per task, with code review after each
 **Other:**
 - `documentation-specialist` - Docs, README
 - `mermaid-expert` - Diagrams
-- `general-purpose` - ONLY for research/exploration (NEVER for implementation)
+- `general-purpose` - ONLY for research/exploration or fallback if no any specialist matches
 
 ---
 
@@ -89,7 +113,7 @@ Execute plan by dispatching fresh subagent per task, with code review after each
 ### For Each Task, Do This EXACTLY:
 
 ```
-STEP 1: READ the task description
+STEP 1: READ the task description from plan file
 
 STEP 2: CHECK routing table above
         Ask: "What does this task mention?"
@@ -99,10 +123,10 @@ STEP 3: SAY the routing decision
         "Task N mentions [keyword], routing to [droid-name]"
 
 STEP 4: DISPATCH to that EXACT droid
-        TASK ([droid-from-step-3]: "...")
+        TASK ([droid-from-step-3]: "Task with full context")
         
 STEP 5: AFTER task completes, ALWAYS dispatch code-reviewer
-        TASK (code-reviewer: "Review Task N...")
+        TASK (code-reviewer: "Review Task N: [Task Title]")
 ```
 
 ### Example - Correct Flow:
@@ -112,9 +136,9 @@ Task 1: "Create HTML structure for todo app"
 
 STEP 2: Check table → "HTML" → frontend-developer
 STEP 3: Say: "Task 1 mentions HTML, routing to frontend-developer"
-STEP 4: TASK (frontend-developer: "Create HTML structure...")
+STEP 4: TASK (frontend-developer: "Create HTML Structure")
         ↳ Done
-STEP 5: TASK (code-reviewer: "Review Task 1...")
+STEP 5: TASK (code-reviewer: "Review Task 1: Create HTML Structure")
         ↳ Approved
 ```
 
@@ -123,8 +147,8 @@ STEP 5: TASK (code-reviewer: "Review Task 1...")
 ```
 Task 1: "Create HTML structure for todo app"
 
-❌ Say: "Routing to frontend-developer"
-❌ TASK (backend-specialist: "Create HTML structure...")  ← WRONG DROID!
+❌ TASK (backend-specialist: "Create HTML structure")  ← WRONG DROID!
+❌ TASK (general-purpose: "Create HTML structure")  ← USE SPECIALIST!
 ```
 
 ---
@@ -146,7 +170,7 @@ If the droid you're about to call does NOT match the table, STOP and correct.
 ### Phase 1: Setup
 ```
 1. Read plan file
-2. Create TodoWrite
+2. Create TodoWrite with all tasks
 3. Say: "Starting subagent-driven-development. I will route each task to the correct specialist."
 ```
 
@@ -158,26 +182,87 @@ For EACH task:
 2. TASK ([droid]: "Implement Task N...")
 3. TASK (code-reviewer: "Review Task N...") ← NEVER SKIP
 4. Fix issues if any
-5. Mark complete
+5. Mark task complete in TodoWrite
+6. Move to next task
 ```
 
-### Phase 3: Final Verification
+### Phase 3: Final Review (MANDATORY - DO NOT SKIP)
+
+<FINAL_REVIEW_GATE priority="CRITICAL">
+After ALL tasks are complete, you MUST dispatch a final code-reviewer.
+This reviews the ENTIRE implementation, not just individual tasks.
+SKIPPING THIS STEP IS A PROTOCOL VIOLATION.
+</FINAL_REVIEW_GATE>
+
 ```
-1. TASK (ui-visual-validator: "Verify entire implementation...")
-2. TASK (code-reviewer: "Final review...")
+1. Say: "All tasks complete. Dispatching final code review for entire implementation."
+
+2. Get git SHAs for full implementation:
+   BASE_SHA = commit before first task (or origin/main)
+   HEAD_SHA = current commit (after all tasks)
+
+3. TASK (code-reviewer: "Final review of ENTIRE implementation:
+   
+   WHAT_WAS_IMPLEMENTED: [Summary of all tasks completed]
+   PLAN_OR_REQUIREMENTS: [Full plan file path]
+   BASE_SHA: [commit before implementation started]
+   HEAD_SHA: [current commit]
+   
+   Review checklist:
+   - All plan requirements met?
+   - Architecture coherent across all tasks?
+   - No regressions introduced?
+   - Tests comprehensive?
+   - Ready for merge?")
+
+4. Act on final review feedback:
+   - Fix Critical issues immediately
+   - Fix Important issues before proceeding
+   - Note Minor issues for future
+
+5. If issues found, dispatch fix subagent and re-review
 ```
 
-### Phase 4: Completion
+**Final Review Output Expected:**
 ```
-1. Say: "Loading verification-before-completion skill"
+### Strengths
+[What's well done across entire implementation]
+
+### Issues
+#### Critical (Must Fix)
+#### Important (Should Fix)  
+#### Minor (Nice to Have)
+
+### Assessment
+**Ready to merge?** [Yes/No/With fixes]
+**Reasoning:** [1-2 sentences]
+```
+
+### Phase 4: Verification
+
+```
+1. Say: "Final review passed. Loading verification-before-completion skill."
    SKILL (verification-before-completion)
    
-2. Run verification commands
-   
-3. Say: "Loading finishing-a-development-branch skill"
+2. Run ALL verification commands:
+   - Full test suite
+   - Linter
+   - Type check (if applicable)
+   - Build (if applicable)
+
+3. Confirm ALL pass before proceeding
+```
+
+### Phase 5: Completion
+
+```
+1. Say: "Verification passed. Loading finishing-a-development-branch skill."
    SKILL (finishing-a-development-branch)
    
-4. Follow that skill to complete
+2. Follow that skill to:
+   - Present 4 options (merge/PR/keep/discard)
+   - Execute user's choice
+   - Clean up worktree if needed
 ```
 
 ---
@@ -221,3 +306,121 @@ If you notice any of these, STOP and correct:
 - [ ] finishing-a-development-branch skill loaded
 
 **If any unchecked, workflow is INCOMPLETE.**
+
+---
+
+## Example Workflow
+
+```
+You: I'm using Subagent-Driven Development to execute this plan.
+
+[Load plan from docs/plans/2024-01-15-todo-app.md]
+[Create TodoWrite with 4 tasks]
+
+Say: "Starting subagent-driven-development. I will route each task to the correct specialist."
+
+---
+
+Task 1: Create HTML structure for todo app
+
+Say: "Task 1 mentions HTML, routing to frontend-developer"
+TASK (frontend-developer: "Create HTML Structure")
+↳ Subagent: Created index.html with semantic structure
+
+TASK (code-reviewer: "Review Task 1: Create HTML Structure")
+↳ Reviewer: Strengths: Good semantic HTML. Issues: None. Ready.
+
+[Mark Task 1 complete]
+
+---
+
+Task 2: Add CSS styling
+
+Say: "Task 2 mentions CSS, routing to frontend-developer"
+TASK (frontend-developer: "Add CSS Styling")
+↳ Subagent: Added style.css with responsive design
+
+TASK (code-reviewer: "Review Task 2: Add CSS Styling")
+↳ Reviewer: Strengths: Clean CSS. Issues (Minor): Could use CSS variables.
+
+[Mark Task 2 complete]
+
+---
+
+Task 3: Add JavaScript functionality
+
+Say: "Task 3 mentions JavaScript, routing to javascript-pro"
+TASK (javascript-pro: "Add JavaScript Logic")
+↳ Subagent: Added script.js with CRUD operations
+
+TASK (code-reviewer: "Review Task 3: Add JavaScript Logic")
+↳ Reviewer: Issues (Important): Missing error handling
+
+TASK (javascript-pro: "Fix: Add error handling for localStorage")
+↳ Subagent: Added try-catch blocks
+
+[Mark Task 3 complete]
+
+---
+
+[All tasks complete]
+
+Say: "All tasks complete. Dispatching final code review for entire implementation."
+TASK (code-reviewer: "Final review of entire Todo App implementation")
+↳ Final reviewer: All requirements met, ready to merge
+
+Say: "Final review passed. Loading verification-before-completion skill."
+SKILL (verification-before-completion)
+[Run tests, lint, etc.]
+
+Say: "Verification passed. Loading finishing-a-development-branch skill."
+SKILL (finishing-a-development-branch)
+[Present 4 options to user]
+
+Done!
+```
+
+---
+
+## Advantages
+
+**vs. Manual execution:**
+- Specialist droids are more focused and competent than general-purpose
+- Fresh context per task (no confusion from accumulated state)
+- Parallel-safe (subagents don't interfere with each other)
+- Routing table prevents wrong droid selection
+
+**vs. Executing Plans:**
+- Same session (no handoff overhead)
+- Continuous progress (no waiting for human between tasks)
+- Review checkpoints are automatic
+- Faster iteration cycle
+
+**Cost:**
+- More subagent invocations
+- But catches issues early (cheaper than debugging later)
+- Specialist droids produce higher quality output
+
+---
+
+## Integration
+
+**Required workflow skills:**
+- **writing-plans** - REQUIRED: Creates the plan that this skill executes
+- **requesting-code-review** - REQUIRED: Review after each task (see Phase 2, 3)
+- **verification-before-completion** - REQUIRED: Verify before finishing (see Phase 4)
+- **finishing-a-development-branch** - REQUIRED: Complete development (see Phase 5)
+
+**Subagents must follow:**
+- **test-driven-development** - Subagents follow TDD for each task
+- **testing-anti-patterns** - Avoid testing mock behavior, no test-only methods
+
+**Alternative workflow:**
+- **executing-plans** - Use for parallel session instead of same-session execution
+
+**If subagent fails task:**
+- Dispatch fix subagent with specific instructions
+- Don't try to fix manually (context pollution)
+- Use `debugger` droid if issue is complex
+
+See code-reviewer template: `requesting-code-review/code-reviewer.md`

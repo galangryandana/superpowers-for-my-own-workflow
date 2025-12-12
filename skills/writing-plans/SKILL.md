@@ -5,6 +5,24 @@ description: Use when design is complete and you need detailed implementation ta
 
 # Writing Plans
 
+<CRITICAL_CONSTRAINT>
+THIS SKILL IS FOR CREATING IMPLEMENTATION PLANS ONLY.
+AFTER PLAN IS SAVED, YOU MUST OFFER EXECUTION CHOICE.
+YOU ARE FORBIDDEN FROM IMPLEMENTING ANYTHING YOURSELF.
+YOU ARE FORBIDDEN FROM CREATING FILES (html, css, js, py, etc).
+DROIDS IMPLEMENT. YOU ORCHESTRATE.
+</CRITICAL_CONSTRAINT>
+
+<CHAIN_POSITION>
+You are at step 2 of the workflow chain:
+
+```
+brainstorming → [YOU ARE HERE: writing-plans] → [choice] → droids implement
+```
+
+**NEXT STEP IS MANDATORY:** After plan saved → OFFER EXECUTION CHOICE (subagent-driven OR executing-plans)
+</CHAIN_POSITION>
+
 ## Overview
 
 Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.

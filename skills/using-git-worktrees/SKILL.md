@@ -5,6 +5,25 @@ description: Use when starting feature work that needs isolation from current wo
 
 # Using Git Worktrees
 
+<CRITICAL_CONSTRAINT>
+THIS SKILL IS FOR WORKTREE SETUP ONLY.
+AFTER WORKTREE IS READY, YOU MUST LOAD `writing-plans` SKILL.
+YOU ARE FORBIDDEN FROM IMPLEMENTING ANYTHING YOURSELF.
+YOU ARE FORBIDDEN FROM OFFERING EXECUTION CHOICE BEFORE PLAN EXISTS.
+</CRITICAL_CONSTRAINT>
+
+<OPTIONAL_SKILL>
+This skill is OPTIONAL - not part of the core workflow chain.
+Use when you need isolated workspace for feature development.
+
+Core chain: `brainstorming → writing-plans → [choice] → droids implement`
+
+**When to use this skill:**
+- Working on existing git repository
+- Need isolation from main branch
+- Multiple features in parallel
+</OPTIONAL_SKILL>
+
 ## Overview
 
 Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching.
