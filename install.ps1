@@ -10,7 +10,11 @@ $TEMP_DIR = Join-Path $env:TEMP "superpowers-$(Get-Random)"
 Write-Host "🚀 Installing Superpowers for Droid CLI..." -ForegroundColor Cyan
 
 # Clone repo
-git clone --depth 1 $REPO_URL $TEMP_DIR 2>$null
+$null = git clone --depth 1 $REPO_URL $TEMP_DIR 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to clone repository. Please check your internet connection and try again."
+    exit 1
+}
 
 # Create directories
 New-Item -ItemType Directory -Force -Path "$FACTORY_DIR\skills" | Out-Null
