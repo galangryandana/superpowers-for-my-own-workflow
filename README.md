@@ -13,7 +13,6 @@ Repo ini adalah **versi modifikasi** dari [obra/superpowers](https://github.com/
 | **Eksekutor** | `general-purpose` agent untuk semua task | **Specialist droids** sesuai domain task |
 | **Routing** | Satu agent mengerjakan semua | Task di-route ke droid yang tepat (frontend-developer, python-pro, dll) |
 | **Jumlah Droids** | 100+ droids (banyak redundan) | Droids yang ter-kurasi dan fokus |
-| **Aktivasi** | Otomatis via AGENTS.md | **Manual via slash command** (lebih fleksibel) |
 
 **Keunggulan pendekatan specialist droids:**
 - Setiap task dikerjakan oleh droid dengan expertise yang sesuai
