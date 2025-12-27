@@ -12,8 +12,8 @@ Repo ini adalah **versi modifikasi** dari [obra/superpowers](https://github.com/
 |-------|----------------------------|-----------|
 | **Eksekutor** | `general-purpose` agent untuk semua task | **Specialist droids** sesuai domain task |
 | **Routing** | Satu agent mengerjakan semua | Task di-route ke droid yang tepat (frontend-developer, python-pro, dll) |
-| **Jumlah Droids** | 100+ droids (banyak redundan) | **49 droids** yang ter-kurasi dan fokus |
-| **Skills** | 21 skills | **13 skills** yang essential |
+| **Jumlah Droids** | 100+ droids (banyak redundan) | Droids yang ter-kurasi dan fokus |
+| **Aktivasi** | Otomatis via AGENTS.md | **Manual via slash command** (lebih fleksibel) |
 
 **Keunggulan pendekatan specialist droids:**
 - Setiap task dikerjakan oleh droid dengan expertise yang sesuai
@@ -23,12 +23,12 @@ Repo ini adalah **versi modifikasi** dari [obra/superpowers](https://github.com/
 ## Struktur
 
 ```
-├── skills/      # 13 workflow protocols
-├── droids/      # 49 specialist agents
-└── commands/    # Quick commands
+├── skills/      # Workflow protocols
+├── droids/      # Specialist agents
+└── commands/    # Slash commands
 ```
 
-### Skills (13 Workflows)
+### Skills (Workflows)
 
 | Skill | Fungsi |
 |-------|--------|
@@ -45,7 +45,7 @@ Repo ini adalah **versi modifikasi** dari [obra/superpowers](https://github.com/
 | `dispatching-parallel-agents` | Dispatch multiple agents paralel |
 | `ui-ux-pro-max` | UI/UX design dengan 50 styles |
 
-### Droids (49 Specialists)
+### Droids (Specialists)
 
 **Language Specialists:** python-pro, javascript-pro, typescript-pro, golang-pro, rust-pro, java-pro, php-pro, ruby-pro, elixir-pro, scala-pro, csharp-pro, cpp-specialist, sql-pro
 
@@ -95,6 +95,37 @@ git clone https://github.com/galangryandana/superpowers-for-my-own-workflow.git
 cp -r superpowers-for-my-own-workflow/skills/* ~/.factory/skills/
 cp -r superpowers-for-my-own-workflow/droids/* ~/.factory/droids/
 cp -r superpowers-for-my-own-workflow/commands/* ~/.factory/commands/
+```
+
+## Penggunaan
+
+Versi ini menggunakan **custom slash commands** dengan support argument. Aktivasi manual untuk fleksibilitas.
+
+### Slash Commands
+
+| Command | Fungsi |
+|---------|--------|
+| `/superpowers` | Aktivasi full workflow (brainstorming → planning → execution) |
+| `/brainstorm <deskripsi>` | Langsung brainstorming fitur tanpa full workflow |
+| `/debug` | Aktivasi systematic debugging |
+| `/review` | Request code review |
+| `/writing-plans` | Buat implementation plan |
+
+### Contoh Penggunaan
+
+**Full workflow dengan superpowers:**
+```
+/superpowers
+```
+
+**Langsung brainstorming tanpa full workflow:**
+```
+/brainstorm aku ingin menambah fitur dark mode pada aplikasi
+```
+
+**Debugging:**
+```
+/debug ada error pada fungsi login
 ```
 
 ## Credits
