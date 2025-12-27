@@ -72,7 +72,21 @@ brainstorming → writing-plans → [choice] → specialist droids implement →
 5. **verification**: Verifikasi semua berjalan
 6. **code-review**: Review oleh code-reviewer droid
 
-## Instalasi Manual
+## Instalasi
+
+### macOS / Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/galangryandana/superpowers-for-my-own-workflow/main/install.sh | bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/galangryandana/superpowers-for-my-own-workflow/main/install.ps1 | iex
+```
+
+### Manual
 
 ```bash
 git clone https://github.com/galangryandana/superpowers-for-my-own-workflow.git
