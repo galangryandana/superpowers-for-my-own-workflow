@@ -1,57 +1,88 @@
 # Superpowers for Droid CLI
 
-Framework disiplin pengembangan untuk AI coding assistant, dioptimasi untuk [Droid CLI](https://github.com/galangryandana/droid).
+Framework disiplin pengembangan untuk AI coding assistant, dioptimasi untuk [Droid CLI](https://docs.factory.ai).
 
-## Mengapa Repo Ini?
+## Tentang Versi Ini
 
-Repo ini adalah **clone termodifikasi** dari [obra/superpowers](https://github.com/obra/superpowers) yang awalnya didesain 100% untuk Claude Code.
+Repo ini adalah **versi modifikasi** dari [obra/superpowers](https://github.com/obra/superpowers) dengan pendekatan berbeda:
 
-**Perbedaan dengan superpowers original:**
-- Skills telah diupdate agar **full kompatibel dengan Droid CLI**
-- Droids disesuaikan dengan arsitektur Droid
-- Commands dioptimasi untuk workflow Droid
-- Beberapa syntax dan path telah disesuaikan supaya kompatibel dengan Droid CLI
+**Perbedaan utama dengan superpowers original:**
 
-## Instalasi
+| Aspek | Original (obra/superpowers) | Versi Ini |
+|-------|----------------------------|-----------|
+| **Eksekutor** | `general-purpose` agent untuk semua task | **Specialist droids** sesuai domain task |
+| **Routing** | Satu agent mengerjakan semua | Task di-route ke droid yang tepat (frontend-developer, python-pro, dll) |
+| **Jumlah Droids** | 100+ droids (banyak redundan) | **49 droids** yang ter-kurasi dan fokus |
+| **Skills** | 21 skills | **13 skills** yang essential |
 
-### macOS / Linux
+**Keunggulan pendekatan specialist droids:**
+- Setiap task dikerjakan oleh droid dengan expertise yang sesuai
+- Hasil lebih berkualitas karena droid fokus pada domain spesifiknya
+- Routing table memastikan task selalu ke droid yang tepat
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/galangryandana/superpowers-for-my-own-workflow/main/install.sh | bash
-```
-
-### Windows (PowerShell)
-
-```powershell
-irm https://raw.githubusercontent.com/galangryandana/superpowers-for-my-own-workflow/main/install.ps1 | iex
-```
-
-### Manual
-
-```bash
-git clone https://github.com/galangryandana/superpowers-for-my-own-workflow.git
-cd superpowers-for-my-own-workflow
-
-# macOS/Linux
-chmod +x install.sh && ./install.sh
-
-# Windows PowerShell
-.\install.ps1
-```
-
-## Apa yang di-install?
+## Struktur
 
 ```
-~/.factory/
-├── AGENTS.md    # Konfigurasi (append, tidak menimpa file existing)
-├── skills/      # 21 workflow protocols (Droid-compatible)
+├── skills/      # 13 workflow protocols
 ├── droids/      # 49 specialist agents
 └── commands/    # Quick commands
 ```
 
-**Catatan:** 
-- File AGENTS.md akan di-append, bukan di-replace
+### Skills (13 Workflows)
+
+| Skill | Fungsi |
+|-------|--------|
+| `using-superpowers` | Core protocol - wajib di awal sesi |
+| `brainstorming` | Merancang fitur sebelum coding |
+| `writing-plans` | Membuat implementation plan detail |
+| `subagent-driven-development` | Eksekusi dengan dispatch specialist droids |
+| `executing-plans` | Eksekusi plan di sesi terpisah |
+| `test-driven-development` | TDD: RED → GREEN → REFACTOR |
+| `systematic-debugging` | 4-fase debugging sistematis |
+| `verification-before-completion` | Verifikasi sebelum klaim selesai |
+| `requesting-code-review` | Meminta code review |
+| `receiving-code-review` | Merespons feedback review |
+| `dispatching-parallel-agents` | Dispatch multiple agents paralel |
+| `ui-ux-pro-max` | UI/UX design dengan 50 styles |
+
+### Droids (49 Specialists)
+
+**Language Specialists:** python-pro, javascript-pro, typescript-pro, golang-pro, rust-pro, java-pro, php-pro, ruby-pro, elixir-pro, scala-pro, csharp-pro, cpp-specialist, sql-pro
+
+**Domain Specialists:** frontend-developer, backend-specialist, database-specialist, security-specialist, devops-specialist, kubernetes-architect, observability-engineer, network-engineer, flutter-expert, wordpress-developer
+
+**Quality & Review:** code-reviewer, test-automator, debugger, architect-review, ui-visual-validator
+
+**AI & Data:** ai-engineer, prompt-engineer, mlops-engineer, data-specialist, context-manager
+
+**Business & Docs:** business-analyst, documentation-specialist, seo-specialist, search-specialist
+
+**Others:** orchestrator, general-purpose, legacy-modernizer, payment-integration, blockchain-developer, mermaid-expert, ui-ux-designer, dx-optimizer, incident-responder, hybrid-cloud-architect
+
+## Workflow Utama
+
+```
+brainstorming → writing-plans → [choice] → specialist droids implement → verification → code-review
+```
+
+1. **brainstorming**: Tanya jawab untuk memahami requirement
+2. **writing-plans**: Pecah design menjadi task-task detail
+3. **[choice]**: Pilih eksekusi (subagent-driven atau executing-plans)
+4. **specialist droids**: Task di-route ke droid yang sesuai
+5. **verification**: Verifikasi semua berjalan
+6. **code-review**: Review oleh code-reviewer droid
+
+## Instalasi Manual
+
+```bash
+git clone https://github.com/galangryandana/superpowers-for-my-own-workflow.git
+
+# Copy ke ~/.factory/
+cp -r superpowers-for-my-own-workflow/skills/* ~/.factory/skills/
+cp -r superpowers-for-my-own-workflow/droids/* ~/.factory/droids/
+cp -r superpowers-for-my-own-workflow/commands/* ~/.factory/commands/
+```
 
 ## Credits
 
-Based on [obra/superpowers](https://github.com/obra/superpowers), modified for Droid CLI compatibility.
+Based on [obra/superpowers](https://github.com/obra/superpowers), modified with specialist droid approach for better task execution quality.

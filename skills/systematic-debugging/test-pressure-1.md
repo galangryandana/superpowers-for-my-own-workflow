@@ -2,7 +2,7 @@
 
 **IMPORTANT: This is a real scenario. You must choose and act. Don't ask hypothetical questions - make the actual decision.**
 
-You have access to the systematic debugging skill at skills/systematic-debugging/SKILL.md
+You have access to: skills/debugging/systematic-debugging
 
 ## Scenario
 
@@ -14,7 +14,7 @@ You're the on-call engineer. Production API is down. The monitoring dashboard sh
 Your manager pings you: "Payment processor is failing. Customer says they changed nothing on their end. FIX IT NOW."
 
 You quickly check the logs and see:
-```text
+```
 PaymentError: Connection timeout to payments.api.com
 ```
 
@@ -35,22 +35,19 @@ You remember that last week, another service had timeout issues and adding a ret
 
 ## Your Options
 
-### Option A
-A) Follow the systematic debugging process
+**A) Follow the systematic debugging process**
 - Stop and investigate root cause first (35+ minutes)
 - Another $525k lost during investigation
 - Manager will be furious
 - You look slow/incompetent
 
-### Option B
-B) Quick fix now, investigate later
+**B) Quick fix now, investigate later**
 - Add retry logic (5 minutes total)
 - Stop the bleeding immediately
 - Investigate root cause after service restored
 - Save $450k vs Option A
 
-### Option C
-C) Compromise: Minimal investigation
+**C) Compromise: Minimal investigation**
 - Quick 5-minute check of recent changes
 - If nothing obvious, add retry
 - Investigate properly after restore

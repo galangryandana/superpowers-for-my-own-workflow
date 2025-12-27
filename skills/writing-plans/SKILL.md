@@ -1,27 +1,9 @@
 ---
 name: writing-plans
-description: Use when design is complete and you need detailed implementation tasks for engineers with zero codebase context - creates comprehensive implementation plans with exact file paths, complete code examples, and verification steps assuming engineer has minimal domain knowledge
+description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
 # Writing Plans
-
-<CRITICAL_CONSTRAINT>
-THIS SKILL IS FOR CREATING IMPLEMENTATION PLANS ONLY.
-AFTER PLAN IS SAVED, YOU MUST OFFER EXECUTION CHOICE.
-YOU ARE FORBIDDEN FROM IMPLEMENTING ANYTHING YOURSELF.
-YOU ARE FORBIDDEN FROM CREATING FILES (html, css, js, py, etc).
-DROIDS IMPLEMENT. YOU ORCHESTRATE.
-</CRITICAL_CONSTRAINT>
-
-<CHAIN_POSITION>
-You are at step 2 of the workflow chain:
-
-```
-brainstorming → [YOU ARE HERE: writing-plans] → [choice] → droids implement
-```
-
-**NEXT STEP IS MANDATORY:** After plan saved → OFFER EXECUTION CHOICE (subagent-driven OR executing-plans)
-</CHAIN_POSITION>
 
 ## Overview
 
@@ -30,8 +12,6 @@ Write comprehensive implementation plans assuming the engineer has zero context 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
-
-**Context:** This should be run in a dedicated worktree (created by brainstorming skill).
 
 **Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 
@@ -51,7 +31,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For Droid:** REQUIRED SUB-SKILL: Use `executing-plans` skill to implement this plan task-by-task.
+> **For Claude:** REQUIRED SUB-SKILL: Use executing-plans to implement this plan task-by-task.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -72,7 +52,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `tests/exact/path/to/test.py`
 
-#### Step 1: Write the failing test
+**Step 1: Write the failing test**
 
 ```python
 def test_specific_behavior():
@@ -80,24 +60,24 @@ def test_specific_behavior():
     assert result == expected
 ```
 
-#### Step 2: Run test to verify it fails
+**Step 2: Run test to verify it fails**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-#### Step 3: Write minimal implementation
+**Step 3: Write minimal implementation**
 
 ```python
 def function(input):
     return expected
 ```
 
-#### Step 4: Run test to verify it passes
+**Step 4: Run test to verify it passes**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-#### Step 5: Commit
+**Step 5: Commit**
 
 ```bash
 git add tests/path/test.py src/path/file.py
@@ -124,37 +104,11 @@ After saving the plan, offer execution choice:
 
 **Which approach?"**
 
----
+**If Subagent-Driven chosen:**
+- **REQUIRED SUB-SKILL:** Use subagent-driven-development
+- Stay in this session
+- Fresh subagent per task + code review
 
-## CRITICAL: Execution Choice Handling
-
-### If User Chooses Option 1 (Subagent-Driven):
-
-**YOU MUST DO THIS EXACTLY:**
-
-```
-Step 1: Say "Loading subagent-driven-development skill for execution"
-
-Step 2: Actually load the skill:
-SKILL (subagent-driven-development)
-
-Step 3: Wait for skill to load
-
-Step 4: Follow the loaded skill's instructions EXACTLY
-```
-
-**DO NOT skip the SKILL() call. DO NOT just start executing.**
-
-### If User Chooses Option 2 (Parallel Session):
-
+**If Parallel Session chosen:**
 - Guide them to open new session in worktree
-- New session uses `executing-plans` skill
-
----
-
-## FORBIDDEN BEHAVIORS
-
-- ❌ Starting execution without loading subagent-driven-development skill
-- ❌ Dispatching tasks without following the skill's routing table
-- ❌ Using general-purpose for HTML/CSS/JS tasks
-- ❌ Skipping code-reviewer after tasks
+- **REQUIRED SUB-SKILL:** New session uses executing-plans

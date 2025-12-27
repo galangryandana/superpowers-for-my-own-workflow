@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes - four-phase framework (root cause investigation, pattern analysis, hypothesis testing, implementation) that ensures understanding before attempting solutions
+description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
 ---
 
 # Systematic Debugging
@@ -15,7 +15,7 @@ Random fixes waste time and create new bugs. Quick patches mask underlying issue
 
 ## The Iron Law
 
-```text
+```
 NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 ```
 
@@ -49,32 +49,32 @@ You MUST complete each phase before proceeding to the next.
 
 ### Phase 1: Root Cause Investigation
 
-BEFORE attempting ANY fix:
+**BEFORE attempting ANY fix:**
 
-1. Read Error Messages Carefully
+1. **Read Error Messages Carefully**
    - Don't skip past errors or warnings
    - They often contain the exact solution
    - Read stack traces completely
    - Note line numbers, file paths, error codes
 
-2. Reproduce Consistently
+2. **Reproduce Consistently**
    - Can you trigger it reliably?
    - What are the exact steps?
    - Does it happen every time?
    - If not reproducible → gather more data, don't guess
 
-3. Check Recent Changes
+3. **Check Recent Changes**
    - What changed that could cause this?
    - Git diff, recent commits
    - New dependencies, config changes
    - Environmental differences
 
-4. Gather Evidence in Multi-Component Systems
+4. **Gather Evidence in Multi-Component Systems**
 
-   WHEN system has multiple components (CI → build → signing, API → service → database):
+   **WHEN system has multiple components (CI → build → signing, API → service → database):**
 
-   BEFORE proposing fixes, add diagnostic instrumentation:
-   ```text
+   **BEFORE proposing fixes, add diagnostic instrumentation:**
+   ```
    For EACH component boundary:
      - Log what data enters component
      - Log what data exits component
@@ -89,16 +89,20 @@ BEFORE attempting ANY fix:
    **Example (multi-layer system):**
    ```bash
    # Layer 1: Workflow
-   Execute(command: "echo \"=== Secrets available in workflow: ===\" && echo \"IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}\"")
+   echo "=== Secrets available in workflow: ==="
+   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
 
    # Layer 2: Build script
-   Execute(command: "echo \"=== Env vars in build script: ===\" && env | grep IDENTITY || echo \"IDENTITY not in environment\"")
+   echo "=== Env vars in build script: ==="
+   env | grep IDENTITY || echo "IDENTITY not in environment"
 
    # Layer 3: Signing script
-   Execute(command: "echo \"=== Keychain state: ===\" && security list-keychains && security find-identity -v")
+   echo "=== Keychain state: ==="
+   security list-keychains
+   security find-identity -v
 
    # Layer 4: Actual signing
-   Execute(command: "codesign --sign \"$IDENTITY\" --verbose=4 \"$APP\"")
+   codesign --sign "$IDENTITY" --verbose=4 "$APP"
    ```
 
    **This reveals:** Which layer fails (secrets → workflow ✓, workflow → build ✗)
@@ -107,7 +111,7 @@ BEFORE attempting ANY fix:
 
    **WHEN error is deep in call stack:**
 
-   **REQUIRED SUB-SKILL:** Use `root-cause-tracing` skill for backward tracing technique
+   See `root-cause-tracing.md` in this directory for the complete backward tracing technique.
 
    **Quick version:**
    - Where does bad value originate?
@@ -172,7 +176,7 @@ BEFORE attempting ANY fix:
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - **REQUIRED SUB-SKILL:** Use `test-driven-development` skill for writing proper failing tests
+   - Use the `test-driven-development` skill for writing proper failing tests
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -227,7 +231,7 @@ If you catch yourself thinking:
 
 **If 3+ fixes failed:** Question the architecture (see Phase 4.5)
 
-## When your human partner signals you're doing it wrong
+## your human partner's Signals You're Doing It Wrong
 
 **Watch for these redirections:**
 - "Is that not happening?" - You assumed without verifying
@@ -271,15 +275,16 @@ If systematic investigation reveals issue is truly environmental, timing-depende
 
 **But:** 95% of "no root cause" cases are incomplete investigation.
 
-## Integration with Other Skills
+## Supporting Techniques
 
-**This skill requires using:**
-- **root-cause-tracing** - REQUIRED when error is deep in call stack (see Phase 1, Step 5)
-- **test-driven-development** - REQUIRED for creating failing test case (see Phase 4, Step 1)
+These techniques are part of systematic debugging and available in this directory:
 
-**Complementary skills:**
-- **defense-in-depth** - Add validation at multiple layers after finding root cause
-- **condition-based-waiting** - Replace arbitrary timeouts identified in Phase 2
+- **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
+- **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
+- **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
+
+**Related skills:**
+- **test-driven-development** - For creating failing test case (Phase 4, Step 1)
 - **verification-before-completion** - Verify fix worked before claiming success
 
 ## Real-World Impact

@@ -1,426 +1,304 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session - dispatches fresh subagent for each task with code review between tasks, enabling fast iteration with quality gates
+description: Use when executing implementation plans with independent tasks in the current session
 ---
 
 # Subagent-Driven Development
 
-Execute plan by dispatching fresh subagent per task, with code review after each.
+Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
 
-**Core principle:** Fresh subagent per task + review between tasks = high quality, fast iteration
+**Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
 
----
+## When to Use
 
-## Overview
+```dot
+digraph when_to_use {
+    "Have implementation plan?" [shape=diamond];
+    "Tasks mostly independent?" [shape=diamond];
+    "Stay in this session?" [shape=diamond];
+    "subagent-driven-development" [shape=box];
+    "executing-plans" [shape=box];
+    "Manual execution or brainstorm first" [shape=box];
+
+    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
+    "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
+    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
+    "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
+    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
+    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
+}
+```
 
 **vs. Executing Plans (parallel session):**
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
-- Code review after each task (catch issues early)
+- Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-loop between tasks)
 
-**When to use:**
-- Staying in this session
-- Tasks are mostly independent
-- Want continuous progress with quality gates
+## The Process
 
-**When NOT to use:**
-- Need to review plan first (use `executing-plans`)
-- Tasks are tightly coupled (manual execution better)
-- Plan needs revision (brainstorm first)
+```dot
+digraph process {
+    rankdir=TB;
 
----
+    subgraph cluster_per_task {
+        label="Per Task";
+        "Dispatch implementation subagent (selected by mapping, ./implementer-prompt.md)" [shape=box];
+        "Implementation subagent asks questions?" [shape=diamond];
+        "Answer questions, provide context" [shape=box];
+        "Implementation subagent implements, tests, commits, self-reviews" [shape=box];
+        "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
+        "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
+        "Implementation subagent fixes spec gaps" [shape=box];
+        "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
+        "Code quality reviewer subagent approves?" [shape=diamond];
+        "Implementation subagent fixes quality issues" [shape=box];
+        "Mark task complete in TodoWrite" [shape=box];
+    }
 
-## BEFORE YOU START
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
+    "More tasks remain?" [shape=diamond];
+    "Dispatch final code reviewer subagent for entire implementation" [shape=box];
+    "Done" [shape=box style=filled fillcolor=lightgreen];
 
-**Say this exactly:** "I will route each task to the correct specialist droid and call code-reviewer after each task."
-
----
-
-## AVAILABLE DROIDS (TRUST THIS LIST)
-
-**These droids EXIST and are available. Do NOT check system prompt - use THIS list:**
-
-**Frontend/UI:**
-- `frontend-developer` - HTML, CSS, UI, React, Vue, styling, layout
-- `javascript-pro` - Vanilla JS, event handlers, DOM manipulation
-- `typescript-pro` - TypeScript code
-
-**Backend:**
-- `backend-specialist` - API, endpoints, server logic
-- `python-pro` - Python code
-- `golang-pro` - Go code
-- `java-pro` - Java code
-- `rust-pro` - Rust code
-- `php-pro` - PHP code
-- `ruby-pro` - Ruby code
-- `elixir-pro` - Elixir code
-- `scala-pro` - Scala code
-- `csharp-pro` - C# code
-- `cpp-specialist` - C/C++ code
-- `django-pro` - Django projects
-- `fastapi-pro` - FastAPI projects
-
-**Data/Database:**
-- `database-specialist` - SQL, schema, queries, migrations
-- `sql-pro` - Complex SQL queries
-- `data-specialist` - ETL, data pipelines
-
-**Infrastructure:**
-- `devops-specialist` - CI/CD, Docker, deployment
-- `kubernetes-architect` - K8s, GitOps
-- `observability-engineer` - Monitoring, logging
-- `network-engineer` - Networking, DNS, SSL
-
-**Quality:**
-- `test-automator` - Unit tests, E2E, integration tests
-- `code-reviewer` - Code review (MANDATORY after each task)
-- `ui-visual-validator` - Visual verification, UI testing
-- `debugger` - Debugging issues
-- `security-specialist` - Auth, JWT, encryption
-
-**Other:**
-- `documentation-specialist` - Docs, README
-- `mermaid-expert` - Diagrams
-- `general-purpose` - ONLY for research/exploration or fallback if no any specialist matches
-
----
-
-## ROUTING TABLE (MEMORIZE THIS)
-
-**STOP and check this table BEFORE every dispatch.**
-
-| If task mentions... | DISPATCH TO | NOT TO |
-|---------------------|-------------|--------|
-| HTML, CSS, UI, styling, layout, frontend | `frontend-developer` | ~~backend-specialist~~ |
-| JavaScript, JS, vanilla JS, event handlers | `javascript-pro` | ~~general-purpose~~ |
-| TypeScript, TS | `typescript-pro` | ~~general-purpose~~ |
-| Python | `python-pro` | ~~general-purpose~~ |
-| React, Next.js, Vue | `frontend-developer` | ~~backend-specialist~~ |
-| API, endpoint, server, backend logic | `backend-specialist` | ~~frontend-developer~~ |
-| Database, SQL, schema, query | `database-specialist` | ~~backend-specialist~~ |
-| Auth, JWT, security, encryption | `security-specialist` | ~~backend-specialist~~ |
-| Test, unit test, E2E, testing | `test-automator` | ~~general-purpose~~ |
-| Verify, validation, check if works | `ui-visual-validator` | ~~general-purpose~~ |
-| CI/CD, Docker, deploy | `devops-specialist` | ~~general-purpose~~ |
-
-**NEVER use `general-purpose` if ANY specialist matches.**
-
----
-
-## THE PROCESS
-
-### For Each Task, Do This EXACTLY:
-
-```
-STEP 1: READ the task description from plan file
-
-STEP 2: CHECK routing table above
-        Ask: "What does this task mention?"
-        Find the matching row in the table
-        
-STEP 3: SAY the routing decision
-        "Task N mentions [keyword], routing to [droid-name]"
-
-STEP 4: DISPATCH to that EXACT droid
-        TASK ([droid-from-step-3]: "Task with full context")
-        
-STEP 5: AFTER task completes, ALWAYS dispatch code-reviewer
-        TASK (code-reviewer: "Review Task N: [Task Title]")
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementation subagent (selected by mapping, ./implementer-prompt.md)";
+    "Dispatch implementation subagent (selected by mapping, ./implementer-prompt.md)" -> "Implementation subagent asks questions?";
+    "Implementation subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
+    "Answer questions, provide context" -> "Dispatch implementation subagent (selected by mapping, ./implementer-prompt.md)";
+    "Implementation subagent asks questions?" -> "Implementation subagent implements, tests, commits, self-reviews" [label="no"];
+    "Implementation subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
+    "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
+    "Spec reviewer subagent confirms code matches spec?" -> "Implementation subagent fixes spec gaps" [label="no"];
+    "Implementation subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
+    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="yes"];
+    "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
+    "Code quality reviewer subagent approves?" -> "Implementation subagent fixes quality issues" [label="no"];
+    "Implementation subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
+    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
+    "Mark task complete in TodoWrite" -> "More tasks remain?";
+    "More tasks remain?" -> "Dispatch implementation subagent (selected by mapping, ./implementer-prompt.md)" [label="yes"];
+    "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
+    "Dispatch final code reviewer subagent for entire implementation" -> "Done";
+}
 ```
 
-### Example - Correct Flow:
+## Prompt Templates
+
+- `./implementer-prompt.md` - Dispatch implementation subagent (selected subagent_type)
+- `./spec-reviewer-prompt.md` - Dispatch spec compliance reviewer subagent
+- `./code-quality-reviewer-prompt.md` - Dispatch code quality reviewer subagent
+
+## Implementer Dispatch Mapping
+
+Before dispatching an implementation subagent, choose `subagent_type` from the mapping below.
+
+Selection rules:
+1. Build the available droid list from `~/.factory/droids` (filenames without `.md`).
+2. If the task includes explicit tags like `[frontend]` or `type:frontend`, use that category.
+3. Otherwise match keywords (most specific match wins).
+4. If the chosen droid is missing, fall back to `general-purpose`.
+5. Do not use review-only droids (e.g., `code-reviewer`) for implementation tasks.
+
+Keyword mapping (examples; extend as needed):
 
 ```
-Task 1: "Create HTML structure for todo app"
-
-STEP 2: Check table → "HTML" → frontend-developer
-STEP 3: Say: "Task 1 mentions HTML, routing to frontend-developer"
-STEP 4: TASK (frontend-developer: "Create HTML Structure")
-        ↳ Done
-STEP 5: TASK (code-reviewer: "Review Task 1: Create HTML Structure")
-        ↳ Approved
+frontend-developer: [react, next, ui, component, hook, hooks, tsx, tailwind, shadcn]
+ui-ux-designer: [design, wireframe, mockup, ux, user-flow]
+ui-visual-validator: [visual, screenshot, pixel, a11y, regression]
+backend-specialist: [api, rest, graphql, auth, service, microservice]
+fastapi-pro: [fastapi, pydantic, starlette]
+django-pro: [django, drf, channels, celery]
+python-pro: [python, asyncio, pip, venv]
+javascript-pro: [javascript, node, npm, promises]
+typescript-pro: [typescript, ts, tsconfig, types]
+java-pro: [java, spring, jvm]
+golang-pro: [go, golang, goroutine]
+rust-pro: [rust, cargo, lifetimes]
+cpp-specialist: [c++, cpp, cmake]
+csharp-pro: [c#, dotnet, asp.net]
+php-pro: [php, laravel]
+ruby-pro: [ruby, rails]
+scala-pro: [scala, akka, zio]
+elixir-pro: [elixir, phoenix, otp]
+flutter-expert: [flutter, dart]
+wordpress-developer: [wordpress, wp, plugin, theme]
+database-specialist: [database, schema, migration, index, postgres, mysql]
+sql-pro: [sql, query, join, cte]
+data-specialist: [etl, pipeline, warehouse, analytics]
+mlops-engineer: [mlops, training, model-deploy, mlflow]
+ai-engineer: [llm, rag, embeddings, vector, prompt-pipeline]
+prompt-engineer: [prompt, system-prompt, eval, jailbreak]
+security-specialist: [security, owasp, vuln, encryption]
+devops-specialist: [ci, cd, docker, terraform, pipeline]
+kubernetes-architect: [k8s, kubernetes, helm, argo]
+hybrid-cloud-architect: [multi-cloud, aws, azure, gcp, hybrid]
+network-engineer: [vpc, dns, tls, routing, cdn]
+observability-engineer: [logging, tracing, metrics, slo, sli]
+incident-responder: [incident, outage, oncall, pagerduty]
+test-automator: [test, e2e, unit, coverage, qa]
+debugger: [bug, crash, stacktrace, failure]
+legacy-modernizer: [legacy, migration, modernization, upgrade]
+seo-specialist: [seo, sitemap, meta]
+payment-integration: [stripe, paypal, checkout, billing]
+mermaid-expert: [mermaid, diagram, flowchart]
+documentation-specialist: [docs, documentation, api-doc]
+dx-optimizer: [dx, tooling, dev-experience]
+architect-review: [architecture, design-review]
+search-specialist: [research, web-search, competitive]
+blockchain-developer: [web3, solidity, smart-contract]
+business-analyst: [kpi, metrics, roadmap, analysis]
+context-manager: [context, memory, summarization]
+orchestrator: [coordination, delegate, multi-agent]
+general-purpose: []
 ```
-
-### Example - WRONG Flow (Don't Do This):
-
-```
-Task 1: "Create HTML structure for todo app"
-
-❌ TASK (backend-specialist: "Create HTML structure")  ← WRONG DROID!
-❌ TASK (general-purpose: "Create HTML structure")  ← USE SPECIALIST!
-```
-
----
-
-## VALIDATION CHECK
-
-Before EVERY dispatch, ask yourself:
-
-1. "What keyword is in this task?" → [keyword]
-2. "What droid does the table say for [keyword]?" → [droid]
-3. "Am I about to dispatch to [droid]?" → Must be YES
-
-If the droid you're about to call does NOT match the table, STOP and correct.
-
----
-
-## COMPLETE WORKFLOW
-
-### Phase 1: Setup
-```
-1. Read plan file
-2. Create TodoWrite with all tasks
-3. Say: "Starting subagent-driven-development. I will route each task to the correct specialist."
-```
-
-### Phase 2: Execute Tasks
-
-For EACH task:
-```
-1. Say: "Task N mentions [keyword], routing to [droid]"
-2. TASK ([droid]: "Implement Task N...")
-3. TASK (code-reviewer: "Review Task N...") ← NEVER SKIP
-4. Fix issues if any
-5. Mark task complete in TodoWrite
-6. Move to next task
-```
-
-### Phase 3: Final Review (MANDATORY - DO NOT SKIP)
-
-<FINAL_REVIEW_GATE priority="CRITICAL">
-After ALL tasks are complete, you MUST dispatch a final code-reviewer.
-This reviews the ENTIRE implementation, not just individual tasks.
-SKIPPING THIS STEP IS A PROTOCOL VIOLATION.
-</FINAL_REVIEW_GATE>
-
-```
-1. Say: "All tasks complete. Dispatching final code review for entire implementation."
-
-2. Get git SHAs for full implementation:
-   BASE_SHA = commit before first task (or origin/main)
-   HEAD_SHA = current commit (after all tasks)
-
-3. TASK (code-reviewer: "Final review of ENTIRE implementation:
-   
-   WHAT_WAS_IMPLEMENTED: [Summary of all tasks completed]
-   PLAN_OR_REQUIREMENTS: [Full plan file path]
-   BASE_SHA: [commit before implementation started]
-   HEAD_SHA: [current commit]
-   
-   Review checklist:
-   - All plan requirements met?
-   - Architecture coherent across all tasks?
-   - No regressions introduced?
-   - Tests comprehensive?
-   - Ready for merge?")
-
-4. Act on final review feedback:
-   - Fix Critical issues immediately
-   - Fix Important issues before proceeding
-   - Note Minor issues for future
-
-5. If issues found, dispatch fix subagent and re-review
-```
-
-**Final Review Output Expected:**
-```
-### Strengths
-[What's well done across entire implementation]
-
-### Issues
-#### Critical (Must Fix)
-#### Important (Should Fix)  
-#### Minor (Nice to Have)
-
-### Assessment
-**Ready to merge?** [Yes/No/With fixes]
-**Reasoning:** [1-2 sentences]
-```
-
-### Phase 4: Verification
-
-```
-1. Say: "Final review passed. Loading verification-before-completion skill."
-   SKILL (verification-before-completion)
-   
-2. Run ALL verification commands:
-   - Full test suite
-   - Linter
-   - Type check (if applicable)
-   - Build (if applicable)
-
-3. Confirm ALL pass before proceeding
-```
-
-### Phase 5: Completion
-
-```
-1. Say: "Verification passed. Loading finishing-a-development-branch skill."
-   SKILL (finishing-a-development-branch)
-   
-2. Follow that skill to:
-   - Present 4 options (merge/PR/keep/discard)
-   - Execute user's choice
-   - Clean up worktree if needed
-```
-
----
-
-## QUICK REFERENCE - Common Tasks
-
-| Task Example | Route To |
-|--------------|----------|
-| "Create HTML structure" | `frontend-developer` |
-| "Add CSS styling" | `frontend-developer` |
-| "Add JavaScript functionality" | `javascript-pro` |
-| "Implement event handlers" | `javascript-pro` |
-| "Create API endpoint" | `backend-specialist` |
-| "Add database schema" | `database-specialist` |
-| "Implement authentication" | `security-specialist` |
-| "Write unit tests" | `test-automator` |
-| "Verify app works" | `ui-visual-validator` |
-| "Set up CI/CD" | `devops-specialist` |
-
----
-
-## RED FLAGS - STOP IMMEDIATELY
-
-If you notice any of these, STOP and correct:
-
-- ❌ Routing says "frontend-developer" but dispatching to "backend-specialist"
-- ❌ Task mentions "JavaScript" but dispatching to "general-purpose"
-- ❌ Task mentions "HTML/CSS" but dispatching to "backend-specialist"
-- ❌ Skipping code-reviewer after a task
-- ❌ Using "general-purpose" for any implementation task
-
----
-
-## MANDATORY CHECKLIST (Before Saying "Done")
-
-- [ ] Every task routed to correct specialist per table
-- [ ] Code-reviewer called after EVERY task
-- [ ] Final verification with ui-visual-validator
-- [ ] Final code review completed
-- [ ] verification-before-completion skill loaded
-- [ ] finishing-a-development-branch skill loaded
-
-**If any unchecked, workflow is INCOMPLETE.**
-
----
 
 ## Example Workflow
 
 ```
 You: I'm using Subagent-Driven Development to execute this plan.
 
-[Load plan from docs/plans/2024-01-15-todo-app.md]
-[Create TodoWrite with 4 tasks]
+[Read plan file once: docs/plans/feature-plan.md]
+[Extract all 5 tasks with full text and context]
+[Create TodoWrite with all tasks]
 
-Say: "Starting subagent-driven-development. I will route each task to the correct specialist."
+Task 1: Hook installation script
 
----
+[Get Task 1 text and context (already extracted)]
+[Dispatch implementation subagent (selected by mapping) with full task text + context]
 
-Task 1: Create HTML structure for todo app
+Implementer: "Before I begin - should the hook be installed at user or system level?"
 
-Say: "Task 1 mentions HTML, routing to frontend-developer"
-TASK (frontend-developer: "Create HTML Structure")
-↳ Subagent: Created index.html with semantic structure
+You: "User level (~/.config/superpowers/hooks/)"
 
-TASK (code-reviewer: "Review Task 1: Create HTML Structure")
-↳ Reviewer: Strengths: Good semantic HTML. Issues: None. Ready.
+Implementer: "Got it. Implementing now..."
+[Later] Implementer:
+  - Implemented install-hook command
+  - Added tests, 5/5 passing
+  - Self-review: Found I missed --force flag, added it
+  - Committed
+
+[Dispatch spec compliance reviewer]
+Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
+
+[Get git SHAs, dispatch code quality reviewer]
+Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 [Mark Task 1 complete]
 
----
+Task 2: Recovery modes
 
-Task 2: Add CSS styling
+[Get Task 2 text and context (already extracted)]
+[Dispatch implementation subagent (selected by mapping) with full task text + context]
 
-Say: "Task 2 mentions CSS, routing to frontend-developer"
-TASK (frontend-developer: "Add CSS Styling")
-↳ Subagent: Added style.css with responsive design
+Implementer: [No questions, proceeds]
+Implementer:
+  - Added verify/repair modes
+  - 8/8 tests passing
+  - Self-review: All good
+  - Committed
 
-TASK (code-reviewer: "Review Task 2: Add CSS Styling")
-↳ Reviewer: Strengths: Clean CSS. Issues (Minor): Could use CSS variables.
+[Dispatch spec compliance reviewer]
+Spec reviewer: ❌ Issues:
+  - Missing: Progress reporting (spec says "report every 100 items")
+  - Extra: Added --json flag (not requested)
+
+[Implementer fixes issues]
+Implementer: Removed --json flag, added progress reporting
+
+[Spec reviewer reviews again]
+Spec reviewer: ✅ Spec compliant now
+
+[Dispatch code quality reviewer]
+Code reviewer: Strengths: Solid. Issues (Important): Magic number (100)
+
+[Implementer fixes]
+Implementer: Extracted PROGRESS_INTERVAL constant
+
+[Code reviewer reviews again]
+Code reviewer: ✅ Approved
 
 [Mark Task 2 complete]
 
----
+...
 
-Task 3: Add JavaScript functionality
-
-Say: "Task 3 mentions JavaScript, routing to javascript-pro"
-TASK (javascript-pro: "Add JavaScript Logic")
-↳ Subagent: Added script.js with CRUD operations
-
-TASK (code-reviewer: "Review Task 3: Add JavaScript Logic")
-↳ Reviewer: Issues (Important): Missing error handling
-
-TASK (javascript-pro: "Fix: Add error handling for localStorage")
-↳ Subagent: Added try-catch blocks
-
-[Mark Task 3 complete]
-
----
-
-[All tasks complete]
-
-Say: "All tasks complete. Dispatching final code review for entire implementation."
-TASK (code-reviewer: "Final review of entire Todo App implementation")
-↳ Final reviewer: All requirements met, ready to merge
-
-Say: "Final review passed. Loading verification-before-completion skill."
-SKILL (verification-before-completion)
-[Run tests, lint, etc.]
-
-Say: "Verification passed. Loading finishing-a-development-branch skill."
-SKILL (finishing-a-development-branch)
-[Present 4 options to user]
+[After all tasks]
+[Dispatch final code-reviewer]
+Final reviewer: All requirements met, ready to merge
 
 Done!
 ```
 
----
-
 ## Advantages
 
 **vs. Manual execution:**
-- Specialist droids are more focused and competent than general-purpose
-- Fresh context per task (no confusion from accumulated state)
-- Parallel-safe (subagents don't interfere with each other)
-- Routing table prevents wrong droid selection
+- Subagents follow TDD naturally
+- Fresh context per task (no confusion)
+- Parallel-safe (subagents don't interfere)
+- Subagent can ask questions (before AND during work)
 
 **vs. Executing Plans:**
-- Same session (no handoff overhead)
-- Continuous progress (no waiting for human between tasks)
-- Review checkpoints are automatic
-- Faster iteration cycle
+- Same session (no handoff)
+- Continuous progress (no waiting)
+- Review checkpoints automatic
+
+**Efficiency gains:**
+- No file reading overhead (controller provides full text)
+- Controller curates exactly what context is needed
+- Subagent gets complete information upfront
+- Questions surfaced before work begins (not after)
+
+**Quality gates:**
+- Self-review catches issues before handoff
+- Two-stage review: spec compliance, then code quality
+- Review loops ensure fixes actually work
+- Spec compliance prevents over/under-building
+- Code quality ensures implementation is well-built
 
 **Cost:**
-- More subagent invocations
+- More subagent invocations (implementer + 2 reviewers per task)
+- Controller does more prep work (extracting all tasks upfront)
+- Review loops add iterations
 - But catches issues early (cheaper than debugging later)
-- Specialist droids produce higher quality output
 
----
+## Red Flags
+
+**Never:**
+- Skip reviews (spec compliance OR code quality)
+- Proceed with unfixed issues
+- Dispatch multiple implementation subagents in parallel (conflicts)
+- Make subagent read plan file (provide full text instead)
+- Skip scene-setting context (subagent needs to understand where task fits)
+- Ignore subagent questions (answer before letting them proceed)
+- Accept "close enough" on spec compliance (spec reviewer found issues = not done)
+- Skip review loops (reviewer found issues = implementer fixes = review again)
+- Let implementer self-review replace actual review (both are needed)
+- **Start code quality review before spec compliance is ✅** (wrong order)
+- Move to next task while either review has open issues
+
+**If subagent asks questions:**
+- Answer clearly and completely
+- Provide additional context if needed
+- Don't rush them into implementation
+
+**If reviewer finds issues:**
+- Implementer (same subagent) fixes them
+- Reviewer reviews again
+- Repeat until approved
+- Don't skip the re-review
+
+**If subagent fails task:**
+- Re-select a valid `subagent_type` from the available list
+- Dispatch fix subagent with specific instructions
+- Don't try to fix manually (context pollution)
 
 ## Integration
 
 **Required workflow skills:**
-- **writing-plans** - REQUIRED: Creates the plan that this skill executes
-- **requesting-code-review** - REQUIRED: Review after each task (see Phase 2, 3)
-- **verification-before-completion** - REQUIRED: Verify before finishing (see Phase 4)
-- **finishing-a-development-branch** - REQUIRED: Complete development (see Phase 5)
+- **writing-plans** - Creates the plan this skill executes
+- **requesting-code-review** - Code review template for reviewer subagents
 
-**Subagents must follow:**
+**Subagents should use:**
 - **test-driven-development** - Subagents follow TDD for each task
-- **testing-anti-patterns** - Avoid testing mock behavior, no test-only methods
 
 **Alternative workflow:**
 - **executing-plans** - Use for parallel session instead of same-session execution
-
-**If subagent fails task:**
-- Dispatch fix subagent with specific instructions
-- Don't try to fix manually (context pollution)
-- Use `debugger` droid if issue is complex
-
-See code-reviewer template: `requesting-code-review/code-reviewer.md`

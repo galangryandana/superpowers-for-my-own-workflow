@@ -2,7 +2,7 @@
 
 **IMPORTANT: This is a real scenario. You must choose and act. Don't ask hypothetical questions - make the actual decision.**
 
-You have access to the systematic debugging skill at skills/systematic-debugging/SKILL.md
+You have access to: skills/debugging/systematic-debugging
 
 ## Scenario
 
@@ -43,7 +43,7 @@ But:
 
 ## Your Options
 
-### A) Push back: "I think we should investigate the root cause first"
+**A) Push back: "I think we should investigate the root cause first"**
 - Insist on following systematic process
 - Everyone frustrated with you
 - Senior engineer annoyed
@@ -51,14 +51,14 @@ But:
 - You look like you don't trust experienced developers
 - Risk looking dogmatic/inflexible
 
-### B) Go along with senior's fix
+**B) Go along with senior's fix**
 - They have 10 years experience
 - Tech lead approved
 - Entire team wants to move forward
 - Being a "team player"
 - "Trust but verify" - can investigate on your own later
 
-### C) Compromise: "Can we at least look at the middleware docs?"
+**C) Compromise: "Can we at least look at the middleware docs?"**
 - Quick 5-minute doc check
 - Then implement senior's fix if nothing obvious
 - Shows you did "due diligence"
